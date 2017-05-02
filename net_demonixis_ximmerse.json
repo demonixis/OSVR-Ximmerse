@@ -1,0 +1,75 @@
+{
+  "deviceVendor": "Ximmerse",
+  "deviceName": "Ximmerse Outside/In Controllers",
+  "author": "Yannick Comte <comte.yannick@gmail.com>",
+  "version": 1,
+  "lastModified": "2017-05-02T21:13:07.585Z",
+  "interfaces": {
+    "tracker": {
+      "count": 2,
+      "position": true,
+      "orientation": true
+    },
+	"analog": {
+		"count": 2
+	},
+	"button": {
+		"count": 16
+	}
+  },
+  "semantic": {
+    "xcobra-0": {
+		"$target": "tracker/0",
+		"trigger": "button/0",
+		"grip": "button/1",
+		"home": "button/2",
+		"menu": "button/3"
+		"up": "button/4",
+		"down": "button/5",
+		"left": "button/6",
+		"right": "button/7",
+		"dpad": {
+			"x:": "analog/0",
+			"y": "analog/1"
+		}
+	},
+	"xcobra-1": {
+		"$target": "tracker/1",
+		"trigger": "button/8",
+		"grip": "button/9",
+		"home": "button/10",
+		"menu": "button/11"
+		"up": "button/12",
+		"down": "button/13",
+		"left": "button/14",
+		"right": "button/15",
+		"dpad": {
+			"x:": "analog/2",
+			"y": "analog/3"
+		}
+	}
+  },
+  "automaticAliases": {
+	"/me/hands/left": "semantic/xcobra-0",
+    "/controller/left/trigger": "semantic/xcobra-0/trigger",
+	"/controller/left/bumper": "semantic/xcobra-0/grip",
+	"/controller/left/middle": "semantic/xcobra-0/home",
+	"/controller/left/joystick/x": "semantic/xcobra-0/dpad/x",
+	"/controller/left/joystick/y": "semantic/xcobra-0/dpad/y",
+	"/controller/left/1": "semantic/xcobra-0/up",
+	"/controller/left/2": "semantic/xcobra-0/down",
+	"/controller/left/3": "semantic/xcobra-0/left",
+	"/controller/left/4": "semantic/xcobra-0/right",
+	
+	"/me/hands/right": "semantic/xcobra-1",
+    "/controller/right/trigger": "semantic/xcobra-1/trigger",
+	"/controller/right/bumper": "semantic/xcobra-1/grip",
+	"/controller/right/middle": "semantic/xcobra-1/home",
+	"/controller/right/joystick/x": "semantic/xcobra-1/dpad/x",
+	"/controller/right/joystick/y": "semantic/xcobra-1/dpad/y",
+	"/controller/right/1": "semantic/xcobra-1/up",
+	"/controller/right/2": "semantic/xcobra-1/down",
+	"/controller/right/3": "semantic/xcobra-1/left",
+	"/controller/right/4": "semantic/xcobra-1/right"
+  }
+}
