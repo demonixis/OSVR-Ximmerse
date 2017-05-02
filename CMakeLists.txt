@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(OsvrXimmerse) # Change this line.
+project(OsvrXimmerse)
 
-# This looks for an osvrConfig.cmake file - most of the time it can be
-# autodetected but you might need to create/extend CMAKE_PREFIX_PATH to include something like
-# C:/Users/Ryan/Desktop/build/OSVR-Core-vc12 or
-# C:/Users/Ryan/Downloads/OSVR-Core-Snapshot-v0.1-406-gaa55515-build54-vs12-32bit
-# in the CMake GUI or command line.
 find_package(osvr REQUIRED)
 
 # This generates a header file, from the named json file, containing a string literal
@@ -16,7 +11,15 @@ osvr_convert_json(net_demonixis_ximmerse_json
     "${CMAKE_CURRENT_BINARY_DIR}/net_demonixis_ximmerse_json.h")
 
 # Be able to find our generated header file.
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories(
+	"${CMAKE_CURRENT_BINARY_DIR}"
+	"${CMAKE_SOURCE_DIR}/Vendors/Ximmerse/include"
+)
+
+link_directories(
+	"${CMAKE_SOURCE_DIR}/Vendors/Ximmerse/libs"
+	"${CMAKE_SOURCE_DIR}/Vendors/Ximmerse/libs/x64"
+)
 
 # This is just a helper function wrapping CMake's add_library command that
 # sets up include dirs, libraries, and naming convention (no leading "lib")
@@ -29,4 +32,7 @@ osvr_add_plugin(NAME net_demonixis_ximmerse
     "${CMAKE_CURRENT_BINARY_DIR}/net_demonixis_ximmerse_json.h")
 
 # If you use other libraries, find them and add a line like:
-# target_link_libraries(net_demonixis_ximmerse_json AnyOtherLibraries)
+target_link_libraries(
+	net_demonixis_ximmerse
+	xdevice
+)

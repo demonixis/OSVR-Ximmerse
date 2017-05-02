@@ -1,37 +1,38 @@
-// vs2015.cpp : 定义控制台应用程序的入口点。
-//
-
 #include "stdafx.h"
 #include "xdevice.h"
 #include <windows.h>
 
-
-
-int get_int() {
-
+int get_int()
+{
 	int value;
-	while (scanf("%d", &value) != 1) {
+	while (scanf("%d", &value) != 1) 
+	{
 		while (getchar() != '\n');
 		printf("The format is not correct. Please re-enter it.！\n");
 	}
+
 	while (getchar() != '\n');
 	return value;
 }
 
-char get_first() {
+char get_first() 
+{
 	char value;
 	scanf("%c", &value);
+
 	while (value == '\n' || value == 32)
 	{
 		scanf("%c", &value);
 		while (getchar() != '\n');
 	}
+
 	while (getchar() != '\n');
 	return value;
 }
 
 
-int menu() {
+int menu() 
+{
 	int result;
 	printf("*************************************************************\n");
 	printf(" Please select：\n");
@@ -41,15 +42,18 @@ int menu() {
 	printf(" 4.Get event, green controller\n");
 	printf("*************************************************************\n");
 	result = get_int();
-	while (result > 6 || result < 1) {
+
+	while (result > 6 || result < 1)
+	{
 		printf("Please input 1-10！\n");
 		result = get_int();
 	}
+
 	return result;
 }
 
-
-void func001() {
+void func001() 
+{
 	char ch;
 
 	XDeviceInit();
@@ -58,13 +62,16 @@ void func001() {
 	handle[1] = XDeviceGetInputDeviceHandle("XCobra-0");
 	handle[2] = XDeviceGetInputDeviceHandle("XCobra-1");
 
-	for (int i = 0; i < 3; i++) {
-		if (handle[i] < 0) {
+	for (int i = 0; i < 3; i++)
+	{
+		if (handle[i] < 0) 
 			printf("get Input handle %d error, i\n");
-		}
+
 		XDeviceUpdateInputState(handle[i]);
 		int status = XDeviceGetInt(handle[i], kField_ConnectionState, 0);
-		switch (status) {
+
+		switch (status) 
+		{
 			case kConnectionState_Disconnected: printf("device %d is Disconnected\n", i); break;
 			case kConnectionState_Scanning:     printf("device %d is Scanning\n", i); break;
 			case kConnectionState_Connecting:   printf("device %d is Connecting\n", i); break;
@@ -74,36 +81,35 @@ void func001() {
 		}
 	}
 
-
-	
-
 	XDeviceExit();
 }
 
-void func002() {
+void func002() 
+{
 	char ch;
 	float position[3];
-	XDeviceInit();
-	int handle = XDeviceGetInputDeviceHandle("XHawk-0");
-	if (handle < 0) {
-		printf("get Input handle error\n");
-	}
 
-	do {
+	XDeviceInit();
+
+	int handle = XDeviceGetInputDeviceHandle("XHawk-0");
+	if (handle < 0)
+		printf("get Input handle error\n");
+
+	do 
+	{
 		XDeviceUpdateInputState(handle);
 		int errorCode = XDeviceGetNodePosition(handle, 0, 2, position);
-		if (errorCode >= 0) {
+		if (errorCode >= 0)
 			printf("position  %.6f, %.6f, %.6f \n", position[0], position[1], position[2]);
-		}
+
 		ch = getchar();
 	} while (ch != 'c' && ch != 'C');
 
 	XDeviceExit();
 }
 
-
-
-void func003() {
+void func003()
+{
 	char ch;
 	ControllerState *state=(ControllerState*)malloc(sizeof(ControllerState));
 	int preTimestamp;
@@ -117,20 +123,21 @@ void func003() {
 	printf(" 'b': get battery level\n");
 	printf("*************************************************************\n");
 
-
 	XDeviceInit();
+
 	int handle = XDeviceGetInputDeviceHandle("XCobra-0");
 	int handle1 = XDeviceGetInputDeviceHandle("XHawk-0");
-	if (handle < 0) {
+	if (handle < 0)
 		printf("get Input handle error\n");
-	}
 
-	do {
+	do 
+	{
 		XDeviceUpdateInputState(handle1);
 
 		int errorCode = XDeviceGetInputState(handle, state);
 	
-		if (errorCode >= 0 && state->timestamp!= preTimestamp) {
+		if (errorCode >= 0 && state->timestamp!= preTimestamp) 
+		{
 			printf("position  %.6f, %.6f, %.6f \n", state->position[0], state->position[1], state->position[2]);
 			printf("rotation  %.4f, %.4f, %.4f %.4f\n", state->rotation[0], state->rotation[2], state->rotation[3], state->rotation[4]);
 			printf("buttons: ");
@@ -146,44 +153,54 @@ void func003() {
 		}
 
 		ch = getchar();
-		if (ch == 'r' || ch == 'R') {
+		if (ch == 'r' || ch == 'R') 
+		{
 			XDeviceSendMessage(handle, kMessage_RecenterSensor, 0, 0);
-		}else if (ch == 's' || ch == 'S') {
+		}
+		else if (ch == 's' || ch == 'S')
+		{
 			int strength = 50; //(20~100) %
 			int frequency = 0; //(default 0)
 			int duration =  0; //ms 
 			XDeviceSendMessage(handle, kMessage_TriggerVibration,
 							  (int)((strength <= 0 ? 20 : strength) | ((frequency << 16) & 0xFFFF0000)),
 							  (int)(duration * 1000));
-		}else if (ch == 'p' || ch == 'P') {
+		}
+		else if (ch == 'p' || ch == 'P') 
+		{
 			XDeviceSendMessage(handle, kMessage_TriggerVibration, -1, 0);
-		}else if (ch == 'b' || ch == 'B') {
+		}
+		else if (ch == 'b' || ch == 'B') 
+		{
 			printf("\n device  battery level %d\n\n", XDeviceGetInt(handle,kField_BatteryLevel,0));
 		}
-
-
 	} while (ch != 'c' && ch != 'C');
 
 	XDeviceExit();
 	free(state);
 }
 
-
-void func004() {
+void func004() 
+{
 	char ch;
 	ControllerState *state = (ControllerState*)malloc(sizeof(ControllerState));
+
 	int preTimestamp;
+
 	XDeviceInit();
+
 	int handle = XDeviceGetInputDeviceHandle("XCobra-1");
 	int handle1 = XDeviceGetInputDeviceHandle("XHawk-0");
-	if (handle < 0) {
-		printf("get Input handle error\n");
-	}
 
-	do {
+	if (handle < 0)
+		printf("get Input handle error\n");
+
+	do
+	{
 		XDeviceUpdateInputState(handle1);
 		int errorCode = XDeviceGetInputState(handle, state);
-		if (errorCode >= 0 && state->timestamp != preTimestamp) {
+		if (errorCode >= 0 && state->timestamp != preTimestamp)
+		{
 			printf("position  %.6f, %.6f, %.6f \n", state->position[0], state->position[1], state->position[2]);
 			printf("rotation  %.4f, %.4f, %.4f %.4f\n", state->rotation[0], state->rotation[2], state->rotation[3], state->rotation[4]);
 			printf("buttons: ");
@@ -199,10 +216,12 @@ void func004() {
 		}
 		preTimestamp = state->timestamp;
 		ch = getchar();
-		if (ch == 'r' || ch == 'R') {
+		if (ch == 'r' || ch == 'R') 
+		{
 			XDeviceSendMessage(handle, kMessage_RecenterSensor, 0, 0);
 		}
-		else if (ch == 's' || ch == 'S') {
+		else if (ch == 's' || ch == 'S')
+		{
 			int strength = 50; //(20~100) %
 			int frequency = 0; //(default 0)
 			int duration = 0; //ms 
@@ -210,10 +229,12 @@ void func004() {
 				(int)((strength <= 0 ? 20 : strength) | ((frequency << 16) & 0xFFFF0000)),
 				(int)(duration * 1000));
 		}
-		else if (ch == 'p' || ch == 'P') {
+		else if (ch == 'p' || ch == 'P') 
+		{
 			XDeviceSendMessage(handle, kMessage_TriggerVibration, -1, 0);
 		}
-		else if (ch == 'b' || ch == 'B') {
+		else if (ch == 'b' || ch == 'B') 
+		{
 			printf("\n device  battery level %d\n\n", XDeviceGetInt(handle, kField_BatteryLevel, 0)); // value range 0~100%
 		}
 
@@ -221,8 +242,8 @@ void func004() {
 
 	XDeviceExit();
 	free(state);
-
 }
+
 int main()
 {
 	char ch;
@@ -237,11 +258,14 @@ int main()
 			default:break;
 		}
 
-		do{
+		do
+		{
 			printf("Do you want to continue to operate？(y/n)");
 			ch = get_first();
-		} while (ch != 'y' && ch != 'Y' && ch != 'n' && ch != 'N');
-	} while (ch == 'y' || ch == 'Y');
+		} 
+		while (ch != 'y' && ch != 'Y' && ch != 'n' && ch != 'N');
+	} 
+	while (ch == 'y' || ch == 'Y');
 
 	return 0;
 }
