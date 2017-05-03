@@ -13,7 +13,6 @@
 // Standard Includes
 
 #define MAX_CONTROLLERS 2
-#define TRACKER_PER_CONTROLLER 1
 #define ANALOG_PER_CONTROLLER 2
 #define BUTTONS_PER_CONTROLLER 8
 
