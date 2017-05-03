@@ -24,12 +24,13 @@ namespace
 	public:
 		XimmerseDevice(OSVR_PluginRegContext ctx)
 		{
+			// Ximmerse Setup
 			m_controllerState = (ControllerState*)malloc(sizeof(ControllerState));
-
 			m_handles[0] = XDeviceGetInputDeviceHandle("XHawk-0");
 			m_handles[1] = XDeviceGetInputDeviceHandle("XCobra-0");
 			m_handles[2] = XDeviceGetInputDeviceHandle("XCobra-1");
 
+			// OSVR Setup
 			OSVR_DeviceInitOptions opts = osvrDeviceCreateInitOptions(ctx);
 			osvrDeviceTrackerConfigure(opts, &m_tracker);
 			osvrDeviceAnalogConfigure(opts, &m_analog, ANALOG_PER_CONTROLLER * MAX_CONTROLLERS);
@@ -46,11 +47,6 @@ namespace
 
 		OSVR_ReturnCode update()
 		{
-			OSVR_Vec3 position;
-			OSVR_Quaternion orientation;
-			OSVR_AnalogState analog[ANALOG_PER_CONTROLLER * MAX_CONTROLLERS];
-			OSVR_ButtonState buttons[BUTTONS_PER_CONTROLLER * MAX_CONTROLLERS];
-
 			for (int i = 0; i < 3; i++)
 			{
 				osvrVec3Zero(&position);
@@ -73,29 +69,27 @@ namespace
 					else
 					{
 						int idx = i - 1;
-						analog[ANALOG_PER_CONTROLLER * idx + 0] = m_controllerState->axes[CONTROLLER_AXIS_LEFT_THUMB_X];
-						analog[ANALOG_PER_CONTROLLER * idx + 1] = m_controllerState->axes[CONTROLLER_AXIS_LEFT_THUMB_Y];
 
-						buttons[BUTTONS_PER_CONTROLLER * idx + 0] = m_controllerState->buttons && CONTROLLER_BUTTON_LEFT_TRIGGER == 0;
-						buttons[BUTTONS_PER_CONTROLLER * idx + 1] = m_controllerState->buttons && CONTROLLER_BUTTON_LEFT_SHOULDER == 0;
-						buttons[BUTTONS_PER_CONTROLLER * idx + 2] = m_controllerState->buttons && CONTROLLER_BUTTON_GUIDE == 0;
-						buttons[BUTTONS_PER_CONTROLLER * idx + 3] = m_controllerState->buttons && CONTROLLER_BUTTON_BACK == 0;
-						buttons[BUTTONS_PER_CONTROLLER * idx + 4] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_UP == 0;
-						buttons[BUTTONS_PER_CONTROLLER * idx + 5] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_DOWN == 0;
-						buttons[BUTTONS_PER_CONTROLLER * idx + 6] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_LEFT == 0;
-						buttons[BUTTONS_PER_CONTROLLER * idx + 7] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_RIGHT == 0;
+						osvrDeviceAnalogSetValue(m_dev, m_analog, m_controllerState->axes[CONTROLLER_AXIS_LEFT_THUMB_X], ANALOG_PER_CONTROLLER * idx + 0);
+						osvrDeviceAnalogSetValue(m_dev, m_analog, m_controllerState->axes[CONTROLLER_AXIS_LEFT_THUMB_Y], ANALOG_PER_CONTROLLER * idx + 1);
 
+						osvrDeviceButtonSetValue(m_dev, m_button, m_controllerState->buttons && CONTROLLER_BUTTON_LEFT_TRIGGER == 0, BUTTONS_PER_CONTROLLER * idx + 0);
+						osvrDeviceButtonSetValue(m_dev, m_button, m_controllerState->buttons && CONTROLLER_BUTTON_LEFT_SHOULDER == 0, BUTTONS_PER_CONTROLLER * idx + 1);
+						osvrDeviceButtonSetValue(m_dev, m_button, m_controllerState->buttons && CONTROLLER_BUTTON_GUIDE == 0, BUTTONS_PER_CONTROLLER * idx + 2);
+						osvrDeviceButtonSetValue(m_dev, m_button, m_controllerState->buttons && CONTROLLER_BUTTON_BACK == 0, BUTTONS_PER_CONTROLLER * idx + 3);
+						osvrDeviceButtonSetValue(m_dev, m_button, m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_UP == 0, BUTTONS_PER_CONTROLLER * idx + 4);
+						osvrDeviceButtonSetValue(m_dev, m_button, m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_DOWN == 0, BUTTONS_PER_CONTROLLER * idx + 5);
+						osvrDeviceButtonSetValue(m_dev, m_button, m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_LEFT == 0, BUTTONS_PER_CONTROLLER * idx + 6);
+						osvrDeviceButtonSetValue(m_dev, m_button, m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_RIGHT == 0, BUTTONS_PER_CONTROLLER * idx + 7);
+		
 						SetOsvrVector3(&position, m_controllerState->position);
-						osvrDeviceTrackerSendPosition(m_dev, m_tracker, &position, idx + 1);
+						osvrDeviceTrackerSendPosition(m_dev, m_tracker, &position, i);
 
 						SetOsvrQuaternion(&orientation, m_controllerState->rotation);
-						osvrDeviceTrackerSendOrientation(m_dev, m_tracker, &orientation, idx + 1);
+						osvrDeviceTrackerSendOrientation(m_dev, m_tracker, &orientation, i);
 					}
 				}
 			}
-
-			osvrDeviceAnalogSetValues(m_dev, m_analog, analog, ANALOG_PER_CONTROLLER * MAX_CONTROLLERS);
-			osvrDeviceButtonSetValues(m_dev, m_button, buttons, BUTTONS_PER_CONTROLLER * MAX_CONTROLLERS);
 
 			return OSVR_RETURN_SUCCESS;
 		}
@@ -108,12 +102,12 @@ namespace
 			osvrVec3SetZ(position, data[2]);
 		}
 
-		void SetOsvrQuaternion(OSVR_Quaternion *orientation, float *data)
+		void SetOsvrQuaternion(OSVR_Quaternion *quaternion, float *data)
 		{
-			osvrQuatSetX(orientation, data[0]);
-			osvrQuatSetX(orientation, data[1]);
-			osvrQuatSetX(orientation, data[2]);
-			osvrQuatSetX(orientation, data[3]);
+			osvrQuatSetX(quaternion, data[0]);
+			osvrQuatSetX(quaternion, data[1]);
+			osvrQuatSetX(quaternion, data[2]);
+			osvrQuatSetX(quaternion, data[3]);
 		}
 
 	private:
@@ -121,8 +115,10 @@ namespace
 		OSVR_TrackerDeviceInterface m_tracker;
 		OSVR_AnalogDeviceInterface m_analog;
 		OSVR_ButtonDeviceInterface m_button;
-		int m_handles[3];
+		OSVR_Vec3 position;
+		OSVR_Quaternion orientation;
 		ControllerState *m_controllerState;
+		int m_handles[3];
 	};
 
 	class XimmerseManager
