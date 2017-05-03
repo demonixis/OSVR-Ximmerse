@@ -64,31 +64,32 @@ namespace
 					if (i == 0)
 					{
 						SetOsvrVector3(&position, m_controllerState->position);
-						osvrDeviceTrackerSendPosition(m_dev, m_tracker, &position, (TRACKER_PER_CONTROLLER * i) + 1);
+						osvrDeviceTrackerSendPosition(m_dev, m_tracker, &position, 0);
 
 						SetOsvrQuaternion(&orientation, m_controllerState->rotation);
-						osvrDeviceTrackerSendOrientation(m_dev, m_tracker, &orientation, (TRACKER_PER_CONTROLLER * i) + 1);
+						osvrDeviceTrackerSendOrientation(m_dev, m_tracker, &orientation, 0);
 					}
 					// X-Cobras-0 & 1
 					else
 					{
-						analog[ANALOG_PER_CONTROLLER * i + 0] = m_controllerState->axes[CONTROLLER_AXIS_LEFT_THUMB_X];
-						analog[ANALOG_PER_CONTROLLER * i + 1] = m_controllerState->axes[CONTROLLER_AXIS_LEFT_THUMB_Y];
+						int idx = i - 1;
+						analog[ANALOG_PER_CONTROLLER * idx + 0] = m_controllerState->axes[CONTROLLER_AXIS_LEFT_THUMB_X];
+						analog[ANALOG_PER_CONTROLLER * idx + 1] = m_controllerState->axes[CONTROLLER_AXIS_LEFT_THUMB_Y];
 
-						buttons[BUTTONS_PER_CONTROLLER * i + 0] = m_controllerState->buttons && CONTROLLER_BUTTON_LEFT_TRIGGER == 0;
-						buttons[BUTTONS_PER_CONTROLLER * i + 1] = m_controllerState->buttons && CONTROLLER_BUTTON_LEFT_SHOULDER == 0;
-						buttons[BUTTONS_PER_CONTROLLER * i + 2] = m_controllerState->buttons && CONTROLLER_BUTTON_GUIDE == 0;
-						buttons[BUTTONS_PER_CONTROLLER * i + 3] = m_controllerState->buttons && CONTROLLER_BUTTON_BACK == 0;
-						buttons[BUTTONS_PER_CONTROLLER * i + 4] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_UP == 0;
-						buttons[BUTTONS_PER_CONTROLLER * i + 5] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_DOWN == 0;
-						buttons[BUTTONS_PER_CONTROLLER * i + 6] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_LEFT == 0;
-						buttons[BUTTONS_PER_CONTROLLER * i + 7] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_RIGHT == 0;
+						buttons[BUTTONS_PER_CONTROLLER * idx + 0] = m_controllerState->buttons && CONTROLLER_BUTTON_LEFT_TRIGGER == 0;
+						buttons[BUTTONS_PER_CONTROLLER * idx + 1] = m_controllerState->buttons && CONTROLLER_BUTTON_LEFT_SHOULDER == 0;
+						buttons[BUTTONS_PER_CONTROLLER * idx + 2] = m_controllerState->buttons && CONTROLLER_BUTTON_GUIDE == 0;
+						buttons[BUTTONS_PER_CONTROLLER * idx + 3] = m_controllerState->buttons && CONTROLLER_BUTTON_BACK == 0;
+						buttons[BUTTONS_PER_CONTROLLER * idx + 4] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_UP == 0;
+						buttons[BUTTONS_PER_CONTROLLER * idx + 5] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_DOWN == 0;
+						buttons[BUTTONS_PER_CONTROLLER * idx + 6] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_LEFT == 0;
+						buttons[BUTTONS_PER_CONTROLLER * idx + 7] = m_controllerState->buttons && CONTROLLER_BUTTON_DPAD_RIGHT == 0;
 
 						SetOsvrVector3(&position, m_controllerState->position);
-						osvrDeviceTrackerSendPosition(m_dev, m_tracker, &position, (TRACKER_PER_CONTROLLER * i) + 1);
+						osvrDeviceTrackerSendPosition(m_dev, m_tracker, &position, idx + 1);
 
 						SetOsvrQuaternion(&orientation, m_controllerState->rotation);
-						osvrDeviceTrackerSendOrientation(m_dev, m_tracker, &orientation, (TRACKER_PER_CONTROLLER * i) + 1);
+						osvrDeviceTrackerSendOrientation(m_dev, m_tracker, &orientation, idx + 1);
 					}
 				}
 			}
