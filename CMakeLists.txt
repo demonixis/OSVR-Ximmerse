@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(OsvrXimmerse)
 
-list(APPEND CMAKE_MODULES_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(osvr REQUIRED)
 find_package(Ximmerse REQUIRED)
@@ -25,11 +25,21 @@ osvr_add_plugin(NAME net_demonixis_ximmerse
 
 # Be able to find our generated header file.
 target_include_directories(net_demonixis_ximmerse
+	PUBLIC
 	"${CMAKE_CURRENT_BINARY_DIR}"
 )
 
 # If you use other libraries, find them and add a line like:
-target_link_libraries( net_demonixis_ximmerse
+target_link_libraries(net_demonixis_ximmerse
 	Ximmerse::Ximmerse
 )
 
+# Install Ximmerse libraries to osvr_server directory
+include(CopyImportedTarget)
+include(GNUInstallDirs)
+get_target_property(_targets Ximmerse::Ximmerse INTERFACE_LINK_LIBRARIES)
+list(APPEND _targets Ximmerse::WCL04)
+foreach(_target IN LISTS _targets)
+	copy_imported_targets(${_target}) # for use in build tree
+	install_imported_target(${_target} DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Runtime) # in installed directory
+endforeach()
