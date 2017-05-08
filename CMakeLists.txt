@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(OsvrXimmerse)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 find_package(osvr REQUIRED)
+find_package(Ximmerse REQUIRED)
 
 # This generates a header file, from the named json file, containing a string literal
 # named net_demonixis_ximmerse_json_json (not null terminated)
@@ -9,17 +12,6 @@ find_package(osvr REQUIRED)
 osvr_convert_json(net_demonixis_ximmerse_json
     net_demonixis_ximmerse.json
     "${CMAKE_CURRENT_BINARY_DIR}/net_demonixis_ximmerse_json.h")
-
-# Be able to find our generated header file.
-include_directories(
-	"${CMAKE_CURRENT_BINARY_DIR}"
-	"${CMAKE_SOURCE_DIR}/Vendors/Ximmerse/include"
-)
-
-link_directories(
-	"${CMAKE_SOURCE_DIR}/Vendors/Ximmerse/libs"
-	"${CMAKE_SOURCE_DIR}/Vendors/Ximmerse/libs/x64"
-)
 
 # This is just a helper function wrapping CMake's add_library command that
 # sets up include dirs, libraries, and naming convention (no leading "lib")
@@ -31,8 +23,23 @@ osvr_add_plugin(NAME net_demonixis_ximmerse
     net_demonixis_ximmerse.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/net_demonixis_ximmerse_json.h")
 
-# If you use other libraries, find them and add a line like:
-target_link_libraries(
-	net_demonixis_ximmerse
-	xdevice
+# Be able to find our generated header file.
+target_include_directories(net_demonixis_ximmerse
+	PUBLIC
+	"${CMAKE_CURRENT_BINARY_DIR}"
 )
+
+# If you use other libraries, find them and add a line like:
+target_link_libraries(net_demonixis_ximmerse
+	Ximmerse::Ximmerse
+)
+
+# Install Ximmerse libraries to osvr_server directory
+include(CopyImportedTarget)
+include(GNUInstallDirs)
+get_target_property(_targets Ximmerse::Ximmerse INTERFACE_LINK_LIBRARIES)
+list(APPEND _targets Ximmerse::WCL04)
+foreach(_target IN LISTS _targets)
+	copy_imported_targets(${_target}) # for use in build tree
+	install_imported_target(${_target} DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT Runtime) # in installed directory
+endforeach()
